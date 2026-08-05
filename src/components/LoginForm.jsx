@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeftIcon,
   EyeClosedIcon,
@@ -8,6 +9,7 @@ import {
 import { LoaderIcon } from "react-hot-toast";
 
 import LoginLeftSide from "./LoginLeftSide";
+import { useAuth } from "../context/auth";
 
 const LoginForm = ({ role, title, subtitle }) => {
   const [email, setEmail] = useState("");
@@ -17,11 +19,22 @@ const LoginForm = ({ role, title, subtitle }) => {
   const [loading, setLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    // Your login logic goes here.
+    try {
+      await login({ email, password, role });
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -204,6 +217,10 @@ const LoginForm = ({ role, title, subtitle }) => {
               Sign In
             </button>
           </form>
+
+          <p className="mt-6 text-center text-sm text-slate-500">
+            New to Employix? <Link className="font-semibold text-violet-600 hover:text-violet-700" to="/signup">Create an account</Link>
+          </p>
         </div>
       </div>
     </div>
